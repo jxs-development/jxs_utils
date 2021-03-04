@@ -2,4 +2,4 @@
 .idea
 
 #dataset
-image_dataset
+image_dataset/*
