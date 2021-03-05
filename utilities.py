@@ -2,6 +2,13 @@ import os
 from functools import reduce
 
 
+def check_flag_is_writable(full_flag: str):
+    path = full_flag.split()[-1]
+    path = path[0:path.rfind('/')]
+    # print(path)
+    os.makedirs(path, exist_ok=True)
+
+
 def file_cmp(file1_path: str, file2_path: str):
     file_is_identical = False
     file1 = open(file1_path, "rb")
@@ -41,12 +48,10 @@ def parse_range_config(name: str):
 
 def encoder_param_flag_generator():
     flags = parse_range_config("config\encoder_params_range.config")
-    key_max_len_of_list_flags = ''
     max_len = -1
     for flag in flags:
         len_of_list_of_flags = len(flags[flag])
         if max_len < len_of_list_of_flags:
-            key_max_len_of_list_flags = flag
             max_len = len_of_list_of_flags
     list_of_flags_combinations = []
     for i in range(max_len):
@@ -84,8 +89,23 @@ def get_original_images_paths_list():
     return original_images_paths
 
 
-def encoder_paths_generator_dict(encoded_prefix):
-    encoder_paths_dict_reference = {}
+def get_encoded_image_list(encoded_prefix):
+    original_images_paths_list = get_original_images_paths_list()
+    images_path_encoded_list = []
+    for original_image_path in original_images_paths_list:
+        format_index_start = original_image_path.find("\\", original_image_path.find("\\"))
+        format_index_end = original_image_path.find("\\",
+                                                    original_image_path.find("\\", original_image_path.find("\\") + 2))
+        format = original_image_path[format_index_start + 1:format_index_end]
+        extension_dot_index = original_image_path.rfind('.')
+        images_path_encoded = encoded_prefix + format + original_image_path[
+                                                        format_index_end:extension_dot_index] + '.jxs'
+        images_path_encoded_list.append(images_path_encoded)
+    return images_path_encoded_list
+
+
+def encoder_paths_generator_dict(encoded_prefix):  # todo copy code in get_encoded_image_list refactor
+    encoder_paths_dict = {}
     tmp_dir = "tpm"
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
@@ -95,13 +115,13 @@ def encoder_paths_generator_dict(encoded_prefix):
         format_index_end = original_image_path.find("\\",
                                                     original_image_path.find("\\", original_image_path.find("\\") + 2))
         format = original_image_path[format_index_start + 1:format_index_end]
-        if format not in encoder_paths_dict_reference:
-            encoder_paths_dict_reference[format] = []
-        extention_dot_index = original_image_path.rfind('.')
-        original_images_path_reference_encoded = encoded_prefix + format + original_image_path[
-                                                                           format_index_end:extention_dot_index] + '.jxs'
-        encoder_paths_dict_reference[format].append(original_image_path + " " + original_images_path_reference_encoded)
-    return encoder_paths_dict_reference
+        if format not in encoder_paths_dict:
+            encoder_paths_dict[format] = []
+        extension_dot_index = original_image_path.rfind('.')
+        images_path_encoded = encoded_prefix + format + original_image_path[
+                                                        format_index_end:extension_dot_index] + '.jxs'
+        encoder_paths_dict[format].append(original_image_path + " " + images_path_encoded)
+    return encoder_paths_dict
 
 
 def encoder_paths_generator_dict_reference():
@@ -109,14 +129,21 @@ def encoder_paths_generator_dict_reference():
     return encoder_paths_generator_dict(reference_encoded_prefix)
 
 
-def encoder_paths_generator_dict_own():
-    reference_encoded_prefix = 'tmp/own_encoded/'
+def encoder_paths_generator_dict_to_check():
+    reference_encoded_prefix = 'tmp/to_check_encoded/'
     return encoder_paths_generator_dict(reference_encoded_prefix)
 
 
-def encoder_ppm_full_flag_generator(path_list, param_flags): #todo
-    print("path ref", path_list)
-    print("params", param_flags)
+def encoder_ppm_full_flag_generator(is_reference, path_list, param_flags):  # todo config bin path
+    if is_reference:
+        encoder_full_flag_prefix = "./reference_bin/jxs_encoder "
+    else:
+        encoder_full_flag_prefix = "./to_check_bin/jxs_encoder "
+    full_flags = []
+    for path in path_list:
+        for params in param_flags:
+            full_flags.append(encoder_full_flag_prefix + params + path)
+    return full_flags
 
 
 full_flag_generators = {
@@ -125,19 +152,19 @@ full_flag_generators = {
 
 
 def encoder_full_flag_generator():
-    full_flags_reference = {}
-    full_flags_own = {}
-    for full_flag_generator in full_flag_generators:
-        path_list_reference = encoder_paths_generator_dict_reference()
-        path_list_own = encoder_paths_generator_dict_reference()
-        param_flags = encoder_param_flag_generator()
-        full_flags_reference[full_flag_generator] = {
-            "reference": full_flag_generators[full_flag_generator](path_list_reference, param_flags),
-            "own": full_flag_generators[full_flag_generator](path_list_own, param_flags)
+    full_flags = {}
+    path_list_reference = encoder_paths_generator_dict_reference()
+    path_list_to_check = encoder_paths_generator_dict_to_check()
+    param_flags = encoder_param_flag_generator()
+    for extension in full_flag_generators:
+        full_flags[extension] = {
+            "reference": full_flag_generators[extension](True, path_list_reference[extension], param_flags),
+            "to_check": full_flag_generators[extension](False, path_list_to_check[extension], param_flags)
         }
+    return full_flags
 
 # print(parse_range_config("config\encoder_params_range.config"))
 # print(encoder_param_flag_generator())
 # print(get_original_images_paths_list())
 # print(encoder_paths_generator_dict_reference())
-print()
+# print(encoder_full_flag_generator())
