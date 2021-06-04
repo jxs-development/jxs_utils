@@ -9,7 +9,7 @@ def encode(full_flags, index):
 
 
 def main():
-    full_flags = utilities.encoder_full_flag_generator()
+    full_flags = utilities.encoder_full_args_generator()
     total_test = True
     for extension in full_flags:
         for index in range(len(full_flags[extension]["reference"])):

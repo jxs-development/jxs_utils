@@ -63,9 +63,8 @@ def encoder_param_flag_generator():
     return list_of_flags_combinations
 
 
-def get_original_images_paths_dict():
+def get_original_images_paths_dict(rootdir="image_dataset"):
     dir = {}
-    rootdir = "image_dataset"
     rootdir = rootdir.rstrip(os.sep)
     start = rootdir.rfind(os.sep) + 1
     for path, dirs, files in os.walk(rootdir):
@@ -76,8 +75,7 @@ def get_original_images_paths_dict():
     return dir
 
 
-def get_original_images_paths_list():
-    rootdir = "image_dataset"
+def get_input_files_paths_list(rootdir="image_dataset"):
     folder = []
     original_images_paths = []
     for i in os.walk(rootdir):
@@ -90,7 +88,7 @@ def get_original_images_paths_list():
 
 
 def get_encoded_image_list(encoded_prefix):
-    original_images_paths_list = get_original_images_paths_list()
+    original_images_paths_list = get_input_files_paths_list()
     images_path_encoded_list = []
     for original_image_path in original_images_paths_list:
         format_index_start = original_image_path.find("\\", original_image_path.find("\\"))
@@ -109,7 +107,7 @@ def encoder_paths_generator_dict(encoded_prefix):  # todo copy code in get_encod
     tmp_dir = "tpm"
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
-    original_images_paths_list = get_original_images_paths_list()
+    original_images_paths_list = get_input_files_paths_list()
     for original_image_path in original_images_paths_list:
         format_index_start = original_image_path.find("\\", original_image_path.find("\\"))
         format_index_end = original_image_path.find("\\",
@@ -146,25 +144,34 @@ def encoder_ppm_full_flag_generator(is_reference, path_list, param_flags):  # to
     return full_flags
 
 
-full_flag_generators = {
+encode_full_flag_generators = {
     "ppm": encoder_ppm_full_flag_generator
 }
 
 
-def encoder_full_flag_generator():
+def encoder_full_args_generator():
     full_flags = {}
     path_list_reference = encoder_paths_generator_dict_reference()
     path_list_to_check = encoder_paths_generator_dict_to_check()
     param_flags = encoder_param_flag_generator()
-    for extension in full_flag_generators:
+    for extension in encode_full_flag_generators:
         full_flags[extension] = {
-            "reference": full_flag_generators[extension](True, path_list_reference[extension], param_flags),
-            "to_check": full_flag_generators[extension](False, path_list_to_check[extension], param_flags)
+            "reference": encode_full_flag_generators[extension](True, path_list_reference[extension], param_flags),
+            "to_check": encode_full_flag_generators[extension](False, path_list_to_check[extension], param_flags)
         }
     return full_flags
 
-# print(parse_range_config("config\encoder_params_range.config"))
-# print(encoder_param_flag_generator())
-# print(get_original_images_paths_list())
-# print(encoder_paths_generator_dict_reference())
-# print(encoder_full_flag_generator())
+
+def decoder_full_args_generator():
+    full_flags = {}
+    full_flags["to_check"] = []
+    full_flags["reference"] = []
+    decoder_full_args_prefix_reference = "./reference_bin/jxs_decoder "
+    decoder_full_args_prefix_to_check = "./to_check_bin/jxs_decoder "
+    bitstream_paths = get_input_files_paths_list("bitstream_dataset")
+    for bitstream_path in bitstream_paths:
+        full_flags["reference"].append(decoder_full_args_prefix_reference + bitstream_path + " tmp/reference.ppm")
+        full_flags["to_check"].append(decoder_full_args_prefix_to_check + bitstream_path + " tmp/to_check.ppm")
+    return full_flags
+
+
