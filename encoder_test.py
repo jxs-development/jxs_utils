@@ -3,7 +3,7 @@ import subprocess
 
 
 def encode(full_flags, index):
-    print(index)
+    print(index, full_flags[index])
     utilities.check_flag_is_writable(full_flags[index])
     subprocess.run(full_flags[index])
 
