@@ -1,6 +1,12 @@
 #pycharm
 .idea
 __pycache__
+jxs_tests/.idea
+jxs_tests/__pycache__
+parse_jxs_stream/.idea
+parse_jxs_stream/__pycache__
 
 #dataset
 tmp/*
+jxs_tests/tmp/*
+
