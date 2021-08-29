@@ -11,19 +11,26 @@ def encode(full_flags, index):
 def main():
     full_flags = utilities.encoder_full_args_generator()
     total_test = True
+    bad_list = []
     for extension in full_flags:
         for index in range(len(full_flags[extension]["reference"])):
             encode(full_flags[extension]["reference"], index)
             encode(full_flags[extension]["to_check"], index)
-            test = utilities.file_cmp(full_flags[extension]["to_check"][index].split()[-1], full_flags[extension]["reference"][index].split()[-1])
-            print(full_flags[extension]["to_check"][index].split()[-1], full_flags[extension]["reference"][index].split()[-1],"files")
+            test = utilities.file_cmp(full_flags[extension]["to_check"][index].split()[-1],
+                                      full_flags[extension]["reference"][index].split()[-1])
+            print(full_flags[extension]["to_check"][index].split()[-1],
+                  full_flags[extension]["reference"][index].split()[-1], "files")
             if test:
-                print("OK")
+                print("[------ OK ------]")
             else:
                 total_test = False
-                print("BAD on",full_flags[extension]["to_check"][index].split()[-1], full_flags[extension]["reference"][index].split()[-1])
+                print("[------ BAD ------]")
+                print(full_flags[extension]["to_check"][index].split()[-1],
+                      full_flags[extension]["reference"][index].split()[-1])
+                bad_list.append("BAD on" + " " + full_flags[extension]["to_check"][index].split()[-1] + " " +
+                                full_flags[extension]["reference"][index].split()[-1])
     print("Total test:", total_test)
-    return total_test
+    return total_test, bad_list
     # reference_encoded_image_list = utilities.get_encoded_image_list("tmp/reference_encoded/")
     # to_check_encoded_image_list = utilities.get_encoded_image_list("tmp/to_check_encoded/")
     # test_ok = True

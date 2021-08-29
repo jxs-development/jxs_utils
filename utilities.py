@@ -1,9 +1,6 @@
 import os
 from functools import reduce
 
-encoder_bin_path = "../jxs_cpp/build/vs_2015/x64/Debug/jxs_encoder.exe "
-
-
 def check_flag_is_writable(full_flag: str):
     path = full_flag.split()[-1]
     path = path[0:path.rfind('/')]
@@ -25,7 +22,8 @@ def file_cmp(file1_path: str, file2_path: str):
         if not byte1 and not byte2:
             file_is_identical = True
             break
-    return file_is_identical
+    # return file_is_identical
+    return False
 
 
 def parse_non_range_config(name: str):
@@ -138,7 +136,8 @@ def encoder_ppm_full_flag_generator(is_reference, path_list, param_flags):  # to
     if is_reference:
         encoder_full_flag_prefix = "./reference_bin/jxs_encoder "
     else:
-        encoder_full_flag_prefix = encoder_bin_path
+        bin_args = parse_non_range_config("config/bin.config")
+        encoder_full_flag_prefix = bin_args["encoder_to_check"] + " "
     full_flags = []
     for path in path_list:
         for params in param_flags:
