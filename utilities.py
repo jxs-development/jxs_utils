@@ -22,8 +22,7 @@ def file_cmp(file1_path: str, file2_path: str):
         if not byte1 and not byte2:
             file_is_identical = True
             break
-    # return file_is_identical
-    return False
+    return file_is_identical
 
 
 def parse_non_range_config(name: str):
