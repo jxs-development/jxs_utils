@@ -166,8 +166,9 @@ def decoder_full_args_generator():
     full_flags = {}
     full_flags["to_check"] = []
     full_flags["reference"] = []
+    params_bin = parse_non_range_config("config/bin.config")
     decoder_full_args_prefix_reference = "./reference_bin/jxs_decoder "
-    decoder_full_args_prefix_to_check = "./to_check_bin/jxs_decoder "
+    decoder_full_args_prefix_to_check = params_bin["decoder_to_check"] + " "
     bitstream_paths = get_input_files_paths_list("bitstream_dataset")
     for bitstream_path in bitstream_paths:
         full_flags["reference"].append(decoder_full_args_prefix_reference + bitstream_path + " tmp/reference.ppm")
