@@ -17,8 +17,10 @@ def main():
         if test:
             print("OK")
         else:
+            print("BAD on",full_decoder_args["reference"][index], full_decoder_args["to_check"][index])
             total_test = False
     print(total_test)
+    return total_test
 
 
 

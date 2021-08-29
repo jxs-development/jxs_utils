@@ -23,6 +23,7 @@ def main():
                 total_test = False
                 print("BAD on",full_flags[extension]["to_check"][index].split()[-1], full_flags[extension]["reference"][index].split()[-1])
     print("Total test:", total_test)
+    return total_test
     # reference_encoded_image_list = utilities.get_encoded_image_list("tmp/reference_encoded/")
     # to_check_encoded_image_list = utilities.get_encoded_image_list("tmp/to_check_encoded/")
     # test_ok = True
