@@ -1,6 +1,6 @@
 import os
 from functools import reduce
-
+import filecmp
 def check_flag_is_writable(full_flag: str):
     path = full_flag.split()[-1]
     path = path[0:path.rfind('/')]
@@ -9,20 +9,7 @@ def check_flag_is_writable(full_flag: str):
 
 
 def file_cmp(file1_path: str, file2_path: str):
-    file_is_identical = False
-    file1 = open(file1_path, "rb")
-    file2 = open(file2_path, "rb")
-    byte1 = file1.read(1)
-    byte2 = file2.read(1)
-    while byte1 and byte2:
-        if byte1 != byte2:
-            break
-        byte1 = file1.read(1)
-        byte2 = file2.read(1)
-        if not byte1 and not byte2:
-            file_is_identical = True
-            break
-    return file_is_identical
+    return filecmp.cmp(file1_path, file2_path)
 
 
 def parse_non_range_config(name: str):
