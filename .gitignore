@@ -1,6 +1,7 @@
 #pycharm
 .idea
 __pycache__
+venv/
 
 #dataset
 tmp/*
